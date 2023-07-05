@@ -51,9 +51,9 @@ class AnonymiseAttachmentsController {
         if ( $size ) {
 
             $attachment_path = sprintf(
-                'asset/%s/%d',
-                $size,
-                $attachment_id
+                'asset/%d/%s',
+                $attachment_id,
+                $size
             );
 
         } else {

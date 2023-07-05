@@ -13,7 +13,7 @@ class AssetRouteController {
     public function add_asset_routes() {
 
         $this->add_route( '^asset/([0-9]+)$', [ $this, 'handle_asset_route' ] );
-        $this->add_route( '^asset/([a-zA-Z]+)/([0-9]+)$', [ $this, 'handle_asset_route' ] );
+        $this->add_route( '^asset/([0-9]+)/([-_a-zA-Z0-9]+)$', [ $this, 'handle_asset_route' ] );
 
     }
 
@@ -21,14 +21,23 @@ class AssetRouteController {
 
         // Get the attachment file path.
 
+        $file_path = get_attached_file( $attachment_id );
+
         if ( $image_size ) {
             
             $image = image_get_intermediate_size( $attachment_id, $image_size );
-            $file_path = $image[3];
+            if ( $image && isset( $image['path'] ) ) {
 
-        } else {
+                $upload_dir = wp_upload_dir();
 
-            $file_path = get_attached_file( $attachment_id );
+                $file_path = sprintf(
+                    '%s/%s',
+                    $upload_dir['basedir'],
+                    $image['path']
+                );
+
+                $file_path = realpath( $file_path );
+            }
 
         }
 
