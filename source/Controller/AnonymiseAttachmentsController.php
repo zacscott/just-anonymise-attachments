@@ -19,6 +19,11 @@ class AnonymiseAttachmentsController {
 
     public function rewrite_attachment_urls( $url, $attachment_id ) {
 
+        // Don't interfere with wp-admin.
+        if ( is_admin() ) {
+            return $url;
+        }
+
         if ( ! $this->lock ) {
             $this->lock = true;
 
@@ -32,6 +37,11 @@ class AnonymiseAttachmentsController {
     }
 
     public function rewrite_image_urls( $image, $attachment_id, $size, $icon ) {
+
+        // Don't interfere with wp-admin.
+        if ( is_admin() ) {
+            return $image;
+        }
 
         if ( ! $this->lock ) {
             $this->lock = true;
