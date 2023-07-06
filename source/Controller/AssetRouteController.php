@@ -12,40 +12,47 @@ class AssetRouteController {
 
     public function add_asset_routes() {
 
-        $this->add_route( '^asset/([0-9]+)$', [ $this, 'handle_asset_route' ] );
-        $this->add_route( '^asset/([0-9]+)/([-_a-zA-Z0-9]+)$', [ $this, 'handle_asset_route' ] );
+        $this->add_route( '^asset/([0-9]+)$', [ $this, 'handle_attachment_route' ] );
+        $this->add_route( '^asset/([-_a-zA-Z0-9]+)/([0-9]+)$', [ $this, 'handle_image_route' ] );
 
     }
 
-    public function handle_asset_route( $attachment_id, $image_size = '' ) {
-
-        // Get the attachment file path.
+    public function handle_attachment_route( $attachment_id ) {
 
         $file_path = get_attached_file( $attachment_id );
+        $mime_type = get_post_mime_type( $attachment_id );
 
-        if ( $image_size ) {
-            
-            $image = image_get_intermediate_size( $attachment_id, $image_size );
-            if ( $image && isset( $image['path'] ) ) {
+        $this->serve_file( $file_path, $mime_type );
 
-                $upload_dir = wp_upload_dir();
+    }
 
-                $file_path = sprintf(
-                    '%s/%s',
-                    $upload_dir['basedir'],
-                    $image['path']
-                );
+    public function handle_image_route( $image_size, $attachment_id ) {
 
-                $file_path = realpath( $file_path );
-            }
+        // As a fallback, serve the original image.
+        $file_path = get_attached_file( $attachment_id );
 
+        // Get the image size file path if it exists.
+        $image = image_get_intermediate_size( $attachment_id, $image_size );
+        if ( $image && isset( $image['path'] ) ) {
+
+            $upload_dir = wp_upload_dir();
+
+            $file_path = sprintf(
+                '%s/%s',
+                $upload_dir['basedir'],
+                $image['path']
+            );
+
+            $file_path = realpath( $file_path );
         }
-
-        // Get the attachment mime type.
 
         $mime_type = get_post_mime_type( $attachment_id );
 
-        // Serve the file directly.
+        $this->serve_file( $file_path, $mime_type );
+
+    }
+
+    protected function serve_file( $file_path, $mime_type ) {
 
         if ( ! $file_path ) {
             status_header( 404 );
@@ -61,8 +68,15 @@ class AssetRouteController {
 
         header(
             sprintf(
+                'Content-Length: %s',
+                filesize( $file_path )
+            )
+        );
+
+        header(
+            sprintf(
                 'Cache-Control: max-age=%d',
-                30 * 24 * 60 * 60 // 30 days.
+                60 * 24 * 60 * 60 // 60 days.
             )
         );
 
