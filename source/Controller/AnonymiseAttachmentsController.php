@@ -49,10 +49,10 @@ class AnonymiseAttachmentsController {
 
     public function wp_get_attachment_metadata( $data, $attachment_id ) {
 
-        $data['file'] = $attachment_id;
+        $data['file'] = "$attachment_id";
 
         foreach ( $data['sizes'] as $size => $size_data ) {
-            $data['sizes'][$size]['file'] = $attachment_id;
+            $data['sizes'][$size]['file'] = "$attachment_id";
         }
 
         return $data;
