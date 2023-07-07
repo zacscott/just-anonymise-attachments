@@ -16,9 +16,13 @@ Automatically optimise and impove image perfomance.
 
 Currently supports the following features:
 
+- Automatic conversion to WEBP format.
 - Limiting maximum image size.
-- Automatic conversion to JPEG or WEBP formats.
 - Anonymisation of attachment paths.
+
+== Screenshots ==
+
+1. Just Fast Images settings page.
 
 == Changelog ==
 
