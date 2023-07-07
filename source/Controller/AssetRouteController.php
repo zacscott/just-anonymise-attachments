@@ -31,11 +31,21 @@ class AssetRouteController {
         // Limit the image sizes if configured.
 
         if ( 'full' === $image_size ) {
-            $image_size = 'large'; // TODO setting.
+
+            $full_image_limit = $this->get_setting_full_image_limit();
+            if ( $full_image_limit ) {
+                $image_size = $full_image_limit;
+            }
+
         }
 
         if ( 'post-thumbnail' === $image_size ) {
-            $image_size = 'medium'; // TODO setting.
+                
+            $featured_image_limit = $this->get_setting_featured_image_limit();
+            if ( $featured_image_limit ) {
+                $image_size = $featured_image_limit;
+            }
+
         }
 
         // As a fallback, serve the original image.
@@ -72,7 +82,7 @@ class AssetRouteController {
         $is_image = preg_match( '#^image/#', $mime_type );
 
         // Change mime type if converting images to webp.
-        if ( $is_image ) {
+        if ( $is_image && $this->get_setting_webp_convert() ) {
             $mime_type = 'image/webp';
         }
 
@@ -87,13 +97,6 @@ class AssetRouteController {
 
         header(
             sprintf(
-                'Content-Length: %s',
-                filesize( $file_path )
-            )
-        );
-
-        header(
-            sprintf(
                 'Cache-Control: max-age=%d',
                 60 * 24 * 60 * 60 // 60 days.
             )
@@ -101,13 +104,13 @@ class AssetRouteController {
 
         // Serve the file.
 
-        if ( $is_image ) {
+        if ( $is_image && $this->get_setting_webp_convert() ) {
             // If the file is an image, convert it to webp.
 
             $file_content =  file_get_contents( $file_path );
 
             $image = imagecreatefromstring( $file_content );
-            imagewebp( $image, null, 80 ); // TODO setting
+            imagewebp( $image, null, $this->get_setting_webp_quality() );
 
         } else {
             // Otherwise, serve the file directly.
@@ -132,6 +135,46 @@ class AssetRouteController {
             call_user_func_array( $callback, array_slice( $matches, 1 ) );
             exit;
         }
+
+    }
+
+    protected function get_setting_webp_convert() {
+        
+        $model = new \JustFastImages\Model\SettingsModel();
+
+        $option_value = $model->get_value( 'webp_convert' );
+
+        return $option_value;
+
+    }
+
+    protected function get_setting_webp_quality() {
+        
+        $model = new \JustFastImages\Model\SettingsModel();
+
+        $option_value = $model->get_value( 'webp_quality' );
+
+        return $option_value;
+
+    }
+
+    protected function get_setting_full_image_limit() {
+        
+        $model = new \JustFastImages\Model\SettingsModel();
+
+        $option_value = $model->get_value( 'full_image_limit' );
+
+        return $option_value;
+
+    }
+
+    protected function get_setting_featured_image_limit() {
+        
+        $model = new \JustFastImages\Model\SettingsModel();
+
+        $option_value = $model->get_value( 'featured_image_limit' );
+
+        return $option_value;
 
     }
 
