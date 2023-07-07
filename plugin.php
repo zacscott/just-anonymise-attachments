@@ -4,7 +4,7 @@
  * Version:     1.0.0
  * Author:      Zac Scott
  * Author URI:  https://zacscott.net
- * Description: Automatically optimise and impove image perfomance.
+ * Description: Automatically optimise and improve image performance.
  * Text Domain: just-fast-images
  */
 

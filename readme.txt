@@ -8,11 +8,11 @@ Requires PHP: 7.0
 License: GPLv3 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-Automatically optimise and improve image perfomance.
+Automatically optimise and improve image performance.
 
 == Description ==
 
-Automatically optimise and improve image perfomance.
+Automatically optimise and improve image performance.
 
 Currently supports the following features:
 
