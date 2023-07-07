@@ -10,15 +10,34 @@ class AnonymiseAttachmentsController {
      */
     protected $lock = false;
 
+    /**
+     * Whether the controller is enabled.
+     * @var bool
+     */
+    protected static $enabled = true;
+
+    /**
+     * Disable the controller.
+     */
+    public static function disable() {
+
+        self::$enabled = false;
+
+    }
+
     public function __construct() {
     
         add_filter( 'wp_get_attachment_url', [ $this, 'wp_get_attachment_url' ], PHP_INT_MAX, 2 );
         add_filter( 'wp_get_attachment_image_src', [ $this, 'wp_get_attachment_image_src' ], PHP_INT_MAX, 4 );
-        // add_filter( 'wp_get_attachment_metadata', [ $this, 'wp_get_attachment_metadata' ], PHP_INT_MAX, 2 );
+        add_filter( 'wp_get_attachment_metadata', [ $this, 'wp_get_attachment_metadata' ], PHP_INT_MAX, 2 );
 
     }
 
     public function wp_get_attachment_url( $url, $attachment_id ) {
+
+        if ( ! self::$enabled ) {
+            return $url;
+        }
 
         if ( ! $this->lock ) {
             $this->lock = true;
@@ -34,6 +53,14 @@ class AnonymiseAttachmentsController {
 
     public function wp_get_attachment_image_src( $image, $attachment_id, $size, $icon ) {
 
+        if ( ! self::$enabled ) {
+            return $image;
+        }
+
+        if ( is_array( $size ) ) {
+            $size = array_shift( $size );
+        }
+
         if ( ! $this->lock ) {
             $this->lock = true;
 
@@ -48,6 +75,10 @@ class AnonymiseAttachmentsController {
     }
 
     public function wp_get_attachment_metadata( $data, $attachment_id ) {
+
+        if ( ! self::$enabled ) {
+            return $data;
+        }
 
         $data['file'] = "$attachment_id";
 

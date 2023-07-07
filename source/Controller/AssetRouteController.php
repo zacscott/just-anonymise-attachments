@@ -91,6 +91,10 @@ class AssetRouteController {
 
         $matched = preg_match( '#' . $regex . '#', $request_uri, $matches );
         if ( $matched ) {
+
+            // Disable the attachment rewriting so that we get the original file path.
+            AnonymiseAttachmentsController::disable();
+
             call_user_func_array( $callback, array_slice( $matches, 1 ) );
             exit;
         }
