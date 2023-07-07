@@ -2,7 +2,7 @@
 # Just Fast Images
 _WordPress Plugin: Just Fast Images_
 
-Automatically optimise and impove image perfomance.
+Automatically optimise and improve image perfomance.
 
 Currently supports the following features:
 
