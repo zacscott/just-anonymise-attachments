@@ -28,6 +28,16 @@ class AssetRouteController {
 
     public function handle_image_route( $image_size, $attachment_id ) {
 
+        // Limit the image sizes if configured.
+
+        if ( 'full' === $image_size ) {
+            $image_size = 'large'; // TODO setting.
+        }
+
+        if ( 'post-thumbnail' === $image_size ) {
+            $image_size = 'medium'; // TODO setting.
+        }
+
         // As a fallback, serve the original image.
         $file_path = get_attached_file( $attachment_id );
 
@@ -59,6 +69,15 @@ class AssetRouteController {
             exit;
         }
 
+        $is_image = preg_match( '#^image/#', $mime_type );
+
+        // Change mime type if converting images to webp.
+        if ( $is_image ) {
+            $mime_type = 'image/webp';
+        }
+
+        // Set the headers.
+
         header(
             sprintf(
                 'Content-Type: %s',
@@ -80,7 +99,22 @@ class AssetRouteController {
             )
         );
 
-        readfile( $file_path );
+        // Serve the file.
+
+        if ( $is_image ) {
+            // If the file is an image, convert it to webp.
+
+            $file_content =  file_get_contents( $file_path );
+
+            $image = imagecreatefromstring( $file_content );
+            imagewebp( $image, null, 80 ); // TODO setting
+
+        } else {
+            // Otherwise, serve the file directly.
+
+            readfile( $file_path );
+
+        }
 
     }
 
