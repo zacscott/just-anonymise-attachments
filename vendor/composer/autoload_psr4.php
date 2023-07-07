@@ -6,5 +6,5 @@ $vendorDir = dirname(__DIR__);
 $baseDir = dirname($vendorDir);
 
 return array(
-    'AnonymiseAttachments\\' => array($baseDir . '/source'),
+    'JustFastImages\\' => array($baseDir . '/source'),
 );

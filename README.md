@@ -1,5 +1,11 @@
 
-# Just Anonymise Uploads
-_WordPress Plugin: Just Anonymise Uploads_
+# Just Fast Images
+_WordPress Plugin: Just Fast Images_
 
-Hide the uploads directory structure and paths.
+Automatically optimise and impove image perfomance.
+
+Currently supports the following features:
+
+- Limiting maximum image size.
+- Automatic conversion to JPEG or WEBP formats.
+- Anonymisation of attachment paths.

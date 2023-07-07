@@ -1,6 +1,6 @@
 <?php
 
-namespace AnonymiseAttachments\Controller;
+namespace JustFastImages\Controller;
 
 class AssetRouteController {
 

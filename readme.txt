@@ -1,4 +1,4 @@
-=== Just Anonymise Uploads ===
+=== Just Fast Images ===
 Contributors: zacscottau
 Tags: performance
 Requires at least: 6.0
@@ -8,11 +8,17 @@ Requires PHP: 7.0
 License: GPLv3 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-Hide the uploads directory structure and paths.
+Automatically optimise and impove image perfomance.
 
 == Description ==
 
-Hide the uploads directory structure and paths.
+Automatically optimise and impove image perfomance.
+
+Currently supports the following features:
+
+- Limiting maximum image size.
+- Automatic conversion to JPEG or WEBP formats.
+- Anonymisation of attachment paths.
 
 == Changelog ==
 
