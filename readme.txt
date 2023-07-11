@@ -26,6 +26,9 @@ Currently supports the following features:
 
 == Changelog ==
 
+= 1.0.1 =
+* Update to enforce max image size on full images.
+
 = 1.0 =
 * Initial release.
 
