@@ -2,7 +2,7 @@
 
 namespace JustFastImages\Controller;
 
-class AnonymiseAttachmentsController {
+class RewriteAttachmentsController {
 
     /**
      * Lock to prevent infinite recursion when filtering the default image.

@@ -22,7 +22,17 @@ class AssetRouteController {
         $file_path = get_attached_file( $attachment_id );
         $mime_type = get_post_mime_type( $attachment_id );
 
-        $this->serve_file( $file_path, $mime_type );
+        if ( $this->is_image_mime( $mime_type ) ) {
+            // If is image, pass it along to the image route handler.
+
+            $this->handle_image_route( 'full', $attachment_id );
+
+        } else {
+            // Otherwise serve file directly.
+
+            $this->serve_file( $file_path, $mime_type );
+
+        }
 
     }
 
@@ -79,7 +89,7 @@ class AssetRouteController {
             exit;
         }
 
-        $is_image = preg_match( '#^image/#', $mime_type );
+        $is_image = $this->is_image_mime( $mime_type );
 
         // Change mime type if converting images to webp.
         if ( $is_image && $this->get_setting_webp_convert() ) {
@@ -130,7 +140,7 @@ class AssetRouteController {
         if ( $matched ) {
 
             // Disable the attachment rewriting so that we get the original file path.
-            AnonymiseAttachmentsController::disable();
+            RewriteAttachmentsController::disable();
 
             call_user_func_array( $callback, array_slice( $matches, 1 ) );
             exit;
@@ -175,6 +185,18 @@ class AssetRouteController {
         $option_value = $model->get_value( 'featured_image_limit' );
 
         return $option_value;
+
+    }
+
+    protected function is_image_mime( $mime_type ) {
+
+        $is_image = false;
+
+        if ( preg_match( '#^image/#', $mime_type ) ) {
+            $is_image = true;
+        }
+
+        return $is_image;
 
     }
 
