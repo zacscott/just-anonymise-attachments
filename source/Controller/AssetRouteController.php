@@ -89,14 +89,27 @@ class AssetRouteController {
             exit;
         }
 
-        $is_image = $this->is_image_mime( $mime_type );
+        if ( $this->is_image_mime( $mime_type ) && $this->get_setting_webp_convert() ) {
+            // If the file is an image, convert it to webp.
 
-        // Change mime type if converting images to webp.
-        if ( $is_image && $this->get_setting_webp_convert() ) {
             $mime_type = 'image/webp';
+
+            $this->set_headers( $file_path, $mime_type );
+            $this->serve_webp_file( $file_path );
+
+        } else {
+            // Otherwise, serve the file directly.
+
+            $this->set_headers( $file_path, $mime_type );
+            $this->serve_raw_file( $file_path );
+
         }
 
-        // Set the headers.
+    }
+
+    protected function set_headers( $file_path, $mime_type ) {
+
+        $file_size = filesize( $file_path );
 
         header(
             sprintf(
@@ -105,29 +118,32 @@ class AssetRouteController {
             )
         );
 
+        // Set cache headers.
+
+        $cache_expires = 60 * 60 * 24 * 365; // 1 year.
+        $cache_expires = apply_filters( 'just_fast_images_cache_expires', $cache_expires );
+
         header(
             sprintf(
-                'Cache-Control: max-age=%d',
-                60 * 24 * 60 * 60 // 60 days.
+                'Cache-Control: public, max-age=%d',
+                $cache_expires
             )
         );
 
-        // Serve the file.
+    }
 
-        if ( $is_image && $this->get_setting_webp_convert() ) {
-            // If the file is an image, convert it to webp.
+    protected function serve_webp_file( $file_path ) {
 
-            $file_content =  file_get_contents( $file_path );
+        $file_content = file_get_contents( $file_path );
 
-            $image = imagecreatefromstring( $file_content );
-            imagewebp( $image, null, $this->get_setting_webp_quality() );
+        $image = imagecreatefromstring( $file_content );
+        imagewebp( $image, null, $this->get_setting_webp_quality() );
 
-        } else {
-            // Otherwise, serve the file directly.
+    }
 
-            readfile( $file_path );
+    protected function serve_raw_file( $file_path ) {
 
-        }
+        readfile( $file_path );
 
     }
 
