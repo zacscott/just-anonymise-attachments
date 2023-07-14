@@ -99,7 +99,9 @@ class AssetRouteController {
                 $height = $image_size_definition['height'] ?? 0;
                 $crop   = $image_size_definition['crop'] ?? false;
 
-                $image->resize( $width, $height, $crop );
+                if ( $width || $height ) {
+                    $image->resize( $width, $height, $crop );
+                }
 
             }
 
@@ -119,36 +121,6 @@ class AssetRouteController {
 
     }
 
-    protected function get_image_sizes() {
-
-		global $_wp_additional_image_sizes;
-
-		$image_sizes = array();
-
-		foreach ( get_intermediate_image_sizes() as $size ) {
-
-			$image_sizes[ $size ]['label'] = $size;
-
-			if ( in_array( $size, array( 'thumbnail', 'medium', 'medium_large', 'large' ) ) ) {
-
-				$image_sizes[ $size ]['width']  = (int) get_option( $size . '_size_w' );
-				$image_sizes[ $size ]['height'] = (int) get_option( $size . '_size_h' );
-				$image_sizes[ $size ]['crop']   = ( 'thumbnail' === $size ) ? (bool) get_option( 'thumbnail_crop' ) : false;
-
-			} elseif ( ! empty( $_wp_additional_image_sizes ) && ! empty( $_wp_additional_image_sizes[ $size ] ) ) {
-
-				$image_sizes[ $size ]['width']  = (int) $_wp_additional_image_sizes[ $size ]['width'];
-				$image_sizes[ $size ]['height'] = (int) $_wp_additional_image_sizes[ $size ]['height'];
-				$image_sizes[ $size ]['crop']   = (bool) $_wp_additional_image_sizes[ $size ]['crop'];
-
-			}
-
-		}
-
-		return $image_sizes;
-
-	}
-
     protected function set_cache_headers() {
 
         $cache_expires = 60 * 60 * 24 * 365; // 1 year.
@@ -162,6 +134,36 @@ class AssetRouteController {
         );
 
     }
+
+    protected function get_image_sizes() {
+
+		$wp_additional_image_sizes = wp_get_additional_image_sizes();
+
+		$image_sizes = array();
+
+		foreach ( get_intermediate_image_sizes() as $size ) {
+
+			$image_sizes[ $size ]['label'] = $size;
+
+			if ( in_array( $size, array( 'thumbnail', 'medium', 'medium_large', 'large' ) ) ) {
+
+				$image_sizes[ $size ]['width']  = (int) get_option( $size . '_size_w' );
+				$image_sizes[ $size ]['height'] = (int) get_option( $size . '_size_h' );
+				$image_sizes[ $size ]['crop']   = ( 'thumbnail' === $size ) ? (bool) get_option( 'thumbnail_crop' ) : false;
+
+			} elseif ( ! empty( $wp_additional_image_sizes ) && ! empty( $wp_additional_image_sizes[ $size ] ) ) {
+
+				$image_sizes[ $size ]['width']  = (int) $wp_additional_image_sizes[ $size ]['width'];
+				$image_sizes[ $size ]['height'] = (int) $wp_additional_image_sizes[ $size ]['height'];
+				$image_sizes[ $size ]['crop']   = (bool) $wp_additional_image_sizes[ $size ]['crop'];
+
+			}
+
+		}
+
+		return $image_sizes;
+
+	}
 
     protected function add_route( $regex, $callback ) {
 
