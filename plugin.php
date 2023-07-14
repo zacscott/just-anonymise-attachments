@@ -1,7 +1,7 @@
 <?php
 /**
  * Plugin Name: Just Fast Images
- * Version:     1.0.1
+ * Version:     2.0.0
  * Author:      Zac Scott
  * Author URI:  https://zacscott.net
  * Description: Automatically optimise and improve image performance.
@@ -16,4 +16,5 @@ define( 'JUST_FAST_IMAGES_PLUGIN_ABSURL', plugin_dir_url( __FILE__ )  );
 // Boot each of the plugin logic controllers.
 new \JustFastImages\Controller\RewriteAttachmentsController();
 new \JustFastImages\Controller\AssetRouteController();
+new \JustFastImages\Controller\DisableCoreImageResizingController();
 new \JustFastImages\Controller\SettingsController();

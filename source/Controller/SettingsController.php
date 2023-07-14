@@ -33,12 +33,6 @@ class SettingsController {
 
         $this->settings = [
             [
-                'setting' => 'webp_convert',
-                'type'    => 'checkbox',
-                'label'   => __( 'Convert to WEBP', 'just-fast-images' ),
-                'desc'    => __( 'Automatically convert images to WEBP.', 'just-fast-images' ),
-            ],
-            [
                 'setting' => 'webp_quality',
                 'type'    => 'number',
                 'min'     => 0,
