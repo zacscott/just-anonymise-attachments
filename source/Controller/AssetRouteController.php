@@ -39,7 +39,6 @@ class AssetRouteController {
     public function handle_image_route( $image_size, $attachment_id ) {
 
         // Limit the image sizes if configured.
-
         if ( 'full' === $image_size ) {
 
             $full_image_limit = $this->get_setting_full_image_limit();
@@ -47,9 +46,7 @@ class AssetRouteController {
                 $image_size = $full_image_limit;
             }
 
-        }
-
-        if ( 'post-thumbnail' === $image_size ) {
+        } else if ( 'post-thumbnail' === $image_size ) {
                 
             $featured_image_limit = $this->get_setting_featured_image_limit();
             if ( $featured_image_limit ) {
@@ -58,24 +55,7 @@ class AssetRouteController {
 
         }
 
-        // As a fallback, serve the original image.
         $file_path = get_attached_file( $attachment_id );
-
-        // Get the image size file path if it exists.
-        $image = image_get_intermediate_size( $attachment_id, $image_size );
-        if ( $image && isset( $image['path'] ) ) {
-
-            $upload_dir = wp_upload_dir();
-
-            $file_path = sprintf(
-                '%s/%s',
-                $upload_dir['basedir'],
-                $image['path']
-            );
-
-            $file_path = realpath( $file_path );
-        }
-
         $mime_type = get_post_mime_type( $attachment_id );
 
         $this->serve_file( $file_path, $mime_type );
@@ -89,27 +69,42 @@ class AssetRouteController {
             exit;
         }
 
-        if ( $this->is_image_mime( $mime_type ) && $this->get_setting_webp_convert() ) {
-            // If the file is an image, convert it to webp.
+        if ( $this->is_image_mime( $mime_type ) ) {
+            // If the file is an image, convert & resize it dynamically.
 
-            $mime_type = 'image/webp';
-
-            $this->set_headers( $file_path, $mime_type );
-            $this->serve_webp_file( $file_path );
+            $this->serve_image_file( $file_path, $mime_type );
 
         } else {
             // Otherwise, serve the file directly.
 
-            $this->set_headers( $file_path, $mime_type );
-            $this->serve_raw_file( $file_path );
+            $this->serve_raw_file( $file_path, $mime_type );
 
         }
 
     }
 
-    protected function set_headers( $file_path, $mime_type ) {
+    protected function serve_image_file( $file_path, $mime_type ) {
 
-        $file_size = filesize( $file_path );
+        $image = wp_get_image_editor( $file_path );
+        if ( ! is_wp_error( $image ) ) {
+            // Image loaded by WP, convert & resize it.
+
+            // $image->resize( 500, NULL, false );
+            $image->set_quality( $this->get_setting_webp_quality() );
+
+            $this->set_cache_headers();
+            $image->stream( 'image/webp' );
+
+        } else {
+            // If the image could not be loaded, serve the original file as a fallback.
+
+            $this->serve_raw_file( $file_path, $mime_type );
+
+        }
+
+    }
+
+    protected function serve_raw_file( $file_path, $mime_type ) {
 
         header(
             sprintf(
@@ -118,7 +113,13 @@ class AssetRouteController {
             )
         );
 
-        // Set cache headers.
+        $this->set_cache_headers();
+
+        readfile( $file_path );
+
+    }
+
+    protected function set_cache_headers() {
 
         $cache_expires = 60 * 60 * 24 * 365; // 1 year.
         $cache_expires = apply_filters( 'just_fast_images_cache_expires', $cache_expires );
@@ -129,21 +130,6 @@ class AssetRouteController {
                 $cache_expires
             )
         );
-
-    }
-
-    protected function serve_webp_file( $file_path ) {
-
-        $file_content = file_get_contents( $file_path );
-
-        $image = imagecreatefromstring( $file_content );
-        imagewebp( $image, null, $this->get_setting_webp_quality() );
-
-    }
-
-    protected function serve_raw_file( $file_path ) {
-
-        readfile( $file_path );
 
     }
 
@@ -164,21 +150,11 @@ class AssetRouteController {
 
     }
 
-    protected function get_setting_webp_convert() {
-        
-        $model = new \JustFastImages\Model\SettingsModel();
-
-        $option_value = $model->get_value( 'webp_convert' );
-
-        return $option_value;
-
-    }
-
     protected function get_setting_webp_quality() {
         
         $model = new \JustFastImages\Model\SettingsModel();
 
-        $option_value = $model->get_value( 'webp_quality' );
+        $option_value = $model->get_value( 'webp_quality', 80 );
 
         return $option_value;
 
