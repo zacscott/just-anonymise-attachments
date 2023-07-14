@@ -16,4 +16,5 @@ define( 'JUST_FAST_IMAGES_PLUGIN_ABSURL', plugin_dir_url( __FILE__ )  );
 // Boot each of the plugin logic controllers.
 new \JustFastImages\Controller\RewriteAttachmentsController();
 new \JustFastImages\Controller\AssetRouteController();
+new \JustFastImages\Controller\DisableCoreImageResizingController();
 new \JustFastImages\Controller\SettingsController();
