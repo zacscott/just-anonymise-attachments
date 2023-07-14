@@ -6,7 +6,7 @@ class AssetRouteController {
 
     public function __construct() {
 
-        add_action( 'init', [ $this, 'add_asset_routes' ] );
+        add_action( 'init', [ $this, 'add_asset_routes' ], PHP_INT_MAX );
 
     }
 
@@ -19,7 +19,6 @@ class AssetRouteController {
 
     public function handle_attachment_route( $attachment_id ) {
 
-        $file_path = get_attached_file( $attachment_id );
         $mime_type = get_post_mime_type( $attachment_id );
 
         if ( $this->is_image_mime( $mime_type ) ) {
@@ -30,7 +29,7 @@ class AssetRouteController {
         } else {
             // Otherwise serve file directly.
 
-            $this->serve_file( $file_path, $mime_type );
+            $this->serve_file( $attachment_id );
 
         }
 
@@ -55,56 +54,19 @@ class AssetRouteController {
 
         }
 
-        $file_path = get_attached_file( $attachment_id );
-        $mime_type = get_post_mime_type( $attachment_id );
-
-        $this->serve_file( $file_path, $mime_type );
+        $this->serve_image( $attachment_id, $image_size );
 
     }
 
-    protected function serve_file( $file_path, $mime_type ) {
+    protected function serve_file( $attachment_id ) {
+
+        $file_path = get_attached_file( $attachment_id );
+        $mime_type = get_post_mime_type( $attachment_id );
 
         if ( ! $file_path ) {
             status_header( 404 );
             exit;
         }
-
-        if ( $this->is_image_mime( $mime_type ) ) {
-            // If the file is an image, convert & resize it dynamically.
-
-            $this->serve_image_file( $file_path, $mime_type );
-
-        } else {
-            // Otherwise, serve the file directly.
-
-            $this->serve_raw_file( $file_path, $mime_type );
-
-        }
-
-    }
-
-    protected function serve_image_file( $file_path, $mime_type ) {
-
-        $image = wp_get_image_editor( $file_path );
-        if ( ! is_wp_error( $image ) ) {
-            // Image loaded by WP, convert & resize it.
-
-            // $image->resize( 500, NULL, false );
-            $image->set_quality( $this->get_setting_webp_quality() );
-
-            $this->set_cache_headers();
-            $image->stream( 'image/webp' );
-
-        } else {
-            // If the image could not be loaded, serve the original file as a fallback.
-
-            $this->serve_raw_file( $file_path, $mime_type );
-
-        }
-
-    }
-
-    protected function serve_raw_file( $file_path, $mime_type ) {
 
         header(
             sprintf(
@@ -118,6 +80,74 @@ class AssetRouteController {
         readfile( $file_path );
 
     }
+
+    protected function serve_image( $attachment_id, $image_size ) {
+
+        $file_path = get_attached_file( $attachment_id );
+
+        $image = wp_get_image_editor( $file_path );
+        if ( ! is_wp_error( $image ) ) {
+            // Image loaded by WP, convert & resize it.
+
+            // Resize the image.
+            $image_sizes = $this->get_image_sizes();
+            if ( isset( $image_sizes[$image_size] ) ) {
+                
+                $image_size_definition = $image_sizes[$image_size];
+
+                $width  = $image_size_definition['width'] ?? 0;
+                $height = $image_size_definition['height'] ?? 0;
+                $crop   = $image_size_definition['crop'] ?? false;
+
+                $image->resize( $width, $height, $crop );
+
+            }
+
+            // Convert and stream the image.
+
+            $this->set_cache_headers();
+
+            $image->set_quality( $this->get_setting_webp_quality() );
+            $image->stream( 'image/webp' );
+
+        } else {
+            // If the image could not be loaded, serve the original file as a fallback.
+
+            $this->serve_file( $attachment_id );
+
+        }
+
+    }
+
+    protected function get_image_sizes() {
+
+		global $_wp_additional_image_sizes;
+
+		$image_sizes = array();
+
+		foreach ( get_intermediate_image_sizes() as $size ) {
+
+			$image_sizes[ $size ]['label'] = $size;
+
+			if ( in_array( $size, array( 'thumbnail', 'medium', 'medium_large', 'large' ) ) ) {
+
+				$image_sizes[ $size ]['width']  = (int) get_option( $size . '_size_w' );
+				$image_sizes[ $size ]['height'] = (int) get_option( $size . '_size_h' );
+				$image_sizes[ $size ]['crop']   = ( 'thumbnail' === $size ) ? (bool) get_option( 'thumbnail_crop' ) : false;
+
+			} elseif ( ! empty( $_wp_additional_image_sizes ) && ! empty( $_wp_additional_image_sizes[ $size ] ) ) {
+
+				$image_sizes[ $size ]['width']  = (int) $_wp_additional_image_sizes[ $size ]['width'];
+				$image_sizes[ $size ]['height'] = (int) $_wp_additional_image_sizes[ $size ]['height'];
+				$image_sizes[ $size ]['crop']   = (bool) $_wp_additional_image_sizes[ $size ]['crop'];
+
+			}
+
+		}
+
+		return $image_sizes;
+
+	}
 
     protected function set_cache_headers() {
 
