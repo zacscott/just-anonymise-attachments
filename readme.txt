@@ -27,6 +27,9 @@ Currently supports the following features:
 
 == Changelog ==
 
+= 2.0.3 =
+* Handle query strings on asset routes gracefully.
+
 = 2.0.2 =
 * Add image resizing fallback to full size.
 

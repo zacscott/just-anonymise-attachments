@@ -12,8 +12,8 @@ class AssetRouteController {
 
     public function add_asset_routes() {
 
-        $this->add_route( '^asset/([0-9]+)$', [ $this, 'handle_attachment_route' ] );
-        $this->add_route( '^asset/([-_a-zA-Z0-9]+)/([0-9]+)$', [ $this, 'handle_image_route' ] );
+        $this->add_route( '^asset/([0-9]+)[^/]*$', [ $this, 'handle_attachment_route' ] );
+        $this->add_route( '^asset/([-_a-zA-Z0-9]+)/([0-9]+)[^/]*$', [ $this, 'handle_image_route' ] );
 
     }
 
