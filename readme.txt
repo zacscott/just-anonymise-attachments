@@ -27,6 +27,9 @@ Currently supports the following features:
 
 == Changelog ==
 
+= 2.0.2 =
+* Add image resizing fallback to full size.
+
 = 2.0.1 =
 * Add image resizing fallback to thumbnail size.
 
