@@ -89,20 +89,36 @@ class AssetRouteController {
         if ( ! is_wp_error( $image ) ) {
             // Image loaded by WP, convert & resize it.
 
-            // Resize the image.
+            // Get image size dimensions.
+
+            $image_size_definition = [];
+
+            $width  = 0;
+            $height = 0;
+            $crop   = 0;
+
             $image_sizes = $this->get_image_sizes();
             if ( isset( $image_sizes[$image_size] ) ) {
                 
                 $image_size_definition = $image_sizes[$image_size];
 
+            } else if ( 'full' !== $image_size ) {
+                // Default back to thumbnail image size.
+
+                $image_size_definition = $image_sizes['thumbnail'];
+
+            }
+
+            // Set image dimensions based on image size.
+            if ( $image_size_definition ) {
                 $width  = $image_size_definition['width'] ?? 0;
                 $height = $image_size_definition['height'] ?? 0;
                 $crop   = $image_size_definition['crop'] ?? false;
+            }
 
-                if ( $width || $height ) {
-                    $image->resize( $width, $height, $crop );
-                }
-
+            // Resize the image.
+            if ( $width || $height ) {
+                $image->resize( $width, $height, $crop );
             }
 
             // Convert and stream the image.

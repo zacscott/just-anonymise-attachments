@@ -3,7 +3,7 @@ Contributors: zacscottau
 Tags: performance
 Requires at least: 6.0
 Tested up to: 6.2.2
-Stable tag: 2.0.0
+Stable tag: 2.0.1
 Requires PHP: 7.0
 License: GPLv3 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -26,6 +26,9 @@ Currently supports the following features:
 1. Just Fast Images settings page.
 
 == Changelog ==
+
+= 2.0.1 =
+* Add image resizing fallback to thumbnail size.
 
 = 2.0.0 =
 * Update to dynamically resize images, replacing WordPress standard image sizes to save disk space.
