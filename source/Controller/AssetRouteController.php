@@ -110,7 +110,10 @@ class AssetRouteController {
             $this->set_cache_headers();
 
             $image->set_quality( $this->get_setting_webp_quality() );
-            $image->stream( 'image/webp' );
+            $stream_status = $image->stream( 'image/webp' );
+            if ( ! $stream_status || is_wp_error( $stream_status ) ) {
+                $image->stream();
+            }
 
         } else {
             // If the image could not be loaded, serve the original file as a fallback.
