@@ -84,42 +84,49 @@ class AssetRouteController {
     protected function serve_image( $attachment_id, $image_size ) {
 
         $file_path = get_attached_file( $attachment_id );
+        $mime_type = get_post_mime_type( $attachment_id );
+
+        // Skip optimising GIFs to prevent issues.
+        if ( 'image/gif' === $mime_type ) {
+            $this->serve_file( $attachment_id );
+            return;
+        }
+
+        // Optimise and serve image.
 
         $image = wp_get_image_editor( $file_path );
-        if ( ! is_wp_error( $image ) ) {
-            // Image loaded by WP, convert & resize it.
 
-            // Resize the image.
-            $image_sizes = $this->get_image_sizes();
-            if ( isset( $image_sizes[$image_size] ) ) {
-                
-                $image_size_definition = $image_sizes[$image_size];
-
-                $width  = $image_size_definition['width'] ?? 0;
-                $height = $image_size_definition['height'] ?? 0;
-                $crop   = $image_size_definition['crop'] ?? false;
-
-                if ( $width || $height ) {
-                    $image->resize( $width, $height, $crop );
-                }
-
-            }
-
-            // Convert and stream the image.
-
-            $this->set_cache_headers();
-
-            $image->set_quality( $this->get_setting_webp_quality() );
-            $stream_status = $image->stream( 'image/webp' );
-            if ( ! $stream_status || is_wp_error( $stream_status ) ) {
-                $image->stream();
-            }
-
-        } else {
+        if ( is_wp_error( $image ) ) {
             // If the image could not be loaded, serve the original file as a fallback.
 
             $this->serve_file( $attachment_id );
+            return;
+        }
+        
+        // Resize the image.
+        $image_sizes = $this->get_image_sizes();
+        if ( isset( $image_sizes[$image_size] ) ) {
+            
+            $image_size_definition = $image_sizes[$image_size];
 
+            $width  = $image_size_definition['width'] ?? 0;
+            $height = $image_size_definition['height'] ?? 0;
+            $crop   = $image_size_definition['crop'] ?? false;
+
+            if ( $width || $height ) {
+                $image->resize( $width, $height, $crop );
+            }
+
+        }
+
+        // Convert and stream the image.
+
+        $this->set_cache_headers();
+
+        $image->set_quality( $this->get_setting_webp_quality() );
+        $stream_status = $image->stream( 'image/webp' );
+        if ( ! $stream_status || is_wp_error( $stream_status ) ) {
+            $image->stream();
         }
 
     }

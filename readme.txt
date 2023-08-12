@@ -29,6 +29,7 @@ Currently supports the following features:
 
 = 2.0.4 =
 * Add fallback if image webp encoding failed.
+* Skip optimising GIFs to prevent some encoding issues.
 
 = 2.0.3 =
 * Handle query strings on asset routes gracefully.
