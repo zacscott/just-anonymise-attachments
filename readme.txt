@@ -3,7 +3,7 @@ Contributors: zacscottau
 Tags: performance
 Requires at least: 6.0
 Tested up to: 6.3.1
-Stable tag: 2.1.0
+Stable tag: 2.1.1
 Requires PHP: 7.0
 License: GPLv3 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -26,6 +26,9 @@ Currently supports the following features:
 1. Just Fast Images settings page.
 
 == Changelog ==
+
+= 2.1.1 =
+* Fix bug with some image blocks.
 
 = 2.1.0 =
 * Automatically rewrite content images to a set size.
