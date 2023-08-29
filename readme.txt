@@ -27,6 +27,9 @@ Currently supports the following features:
 
 == Changelog ==
 
+= 2.1.0 =
+* Automatically rewrite content images to a set size.
+
 = 2.0.6 =
 * Add srcset support.
 

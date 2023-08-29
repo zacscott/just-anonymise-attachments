@@ -33,6 +33,7 @@ class RewriteAttachmentsController {
         add_filter( 'wp_get_attachment_image_src', [ $this, 'wp_get_attachment_image_src' ], PHP_INT_MAX, 4 );
         add_filter( 'wp_get_attachment_metadata', [ $this, 'wp_get_attachment_metadata' ], PHP_INT_MAX, 2 );
         add_filter( 'wp_get_attachment_image_attributes', [ $this, 'wp_get_attachment_image_attributes' ], PHP_INT_MAX, 3 );
+        add_filter( 'wp_content_img_tag', [ $this, 'wp_content_img_tag' ], PHP_INT_MAX, 3 );
 
     }
 
@@ -136,6 +137,29 @@ class RewriteAttachmentsController {
         );
 
         return $attrs;
+
+    }
+
+    public function wp_content_img_tag($html, $context, $attachment_id) {
+
+        if ( 'the_content' === $context ) {
+            $html = wp_get_attachment_image(
+                $attachment_id,
+                $this->get_setting_content_image_size()
+            );
+        }
+    
+        return $html;
+    
+    }
+
+    protected function get_setting_content_image_size() {
+        
+        $model = new \JustFastImages\Model\SettingsModel();
+
+        $option_value = $model->get_value( 'content_image_size' );
+
+        return $option_value;
 
     }
 

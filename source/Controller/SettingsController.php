@@ -65,6 +65,18 @@ class SettingsController {
                 'label'   => __( 'Limit featued image size', 'just-fast-images' ),
                 'desc'    => __( 'Convert featured images to this size.', 'just-fast-images' ),
             ],
+            [
+                'setting' => 'content_image_size',
+                'type'    => 'select',
+                'options' => [
+                    ''          => 'full',
+                    'large'     => 'large',
+                    'medium'    => 'medium',
+                    'thumbnail' => 'thumbnail',
+                ],
+                'label'   => __( 'Content Image Size', 'just-fast-images' ),
+                'desc'    => __( 'Force size of images in the page/post content.', 'just-fast-images' ),
+            ],
         ];
 
     }
