@@ -140,9 +140,9 @@ class RewriteAttachmentsController {
 
     }
 
-    public function wp_content_img_tag($html, $context, $attachment_id) {
+    public function wp_content_img_tag( $html, $context, $attachment_id ) {
 
-        if ( 'the_content' === $context ) {
+        if ( 'the_content' === $context && $attachment_id ) {
             $html = wp_get_attachment_image(
                 $attachment_id,
                 $this->get_setting_content_image_size()
