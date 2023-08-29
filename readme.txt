@@ -27,6 +27,9 @@ Currently supports the following features:
 
 == Changelog ==
 
+= 2.0.6 =
+* Add srcset support.
+
 = 2.0.5 =
 * Fix bug with `wp_get_attachment_metadata` filter.
 

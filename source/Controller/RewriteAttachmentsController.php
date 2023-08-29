@@ -32,6 +32,7 @@ class RewriteAttachmentsController {
         add_filter( 'wp_get_attachment_url', [ $this, 'wp_get_attachment_url' ], PHP_INT_MAX, 2 );
         add_filter( 'wp_get_attachment_image_src', [ $this, 'wp_get_attachment_image_src' ], PHP_INT_MAX, 4 );
         add_filter( 'wp_get_attachment_metadata', [ $this, 'wp_get_attachment_metadata' ], PHP_INT_MAX, 2 );
+        add_filter( 'wp_get_attachment_image_attributes', [ $this, 'wp_get_attachment_image_attributes' ], PHP_INT_MAX, 3 );
 
     }
 
@@ -92,6 +93,49 @@ class RewriteAttachmentsController {
         }
 
         return $data;
+
+    }
+
+    public function wp_get_attachment_image_attributes( $attrs, $attachment, $size ) {
+
+        $max_width = 0;
+
+        $media_helper = new MediaHelper();
+        $image_sizes = $media_helper->get_image_sizes();
+
+        $srcsets = [];
+        foreach ( $image_sizes as $size => $size_data ) {
+
+            if ( $size_data && $size_data['width'] ) {
+
+                $image = wp_get_attachment_image_src( $attachment->ID, $size );
+                if ( $image ) {
+
+                    $srcsets[] = sprintf(
+                        '%s %dw',
+                        $image[0],
+                        $size_data['width']
+                    );
+
+                    if ( $size_data['width'] > $max_width ) {
+                        $max_width = $size_data['width'];
+                    }
+
+                }
+
+            }
+
+        }
+
+        $attrs['srcset'] = implode( ', ', $srcsets );
+
+        $attrs['sizes']  = sprintf(
+            '(max-width: %dpx) 100vw, %dpx',
+            $max_width,
+            $max_width
+        );
+
+        return $attrs;
 
     }
 
