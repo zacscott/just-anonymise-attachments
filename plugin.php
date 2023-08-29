@@ -1,7 +1,7 @@
 <?php
 /**
  * Plugin Name: Just Fast Images
- * Version:     2.0.4
+ * Version:     2.0.5
  * Author:      Zac Scott
  * Author URI:  https://zacscott.net
  * Description: Automatically optimise and improve image performance.

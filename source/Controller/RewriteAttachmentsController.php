@@ -2,6 +2,8 @@
 
 namespace JustFastImages\Controller;
 
+use JustFastImages\Library\MediaHelper;
+
 class RewriteAttachmentsController {
 
     /**
@@ -26,7 +28,7 @@ class RewriteAttachmentsController {
     }
 
     public function __construct() {
-    
+
         add_filter( 'wp_get_attachment_url', [ $this, 'wp_get_attachment_url' ], PHP_INT_MAX, 2 );
         add_filter( 'wp_get_attachment_image_src', [ $this, 'wp_get_attachment_image_src' ], PHP_INT_MAX, 4 );
         add_filter( 'wp_get_attachment_metadata', [ $this, 'wp_get_attachment_metadata' ], PHP_INT_MAX, 2 );
@@ -82,8 +84,11 @@ class RewriteAttachmentsController {
 
         $data['file'] = "$attachment_id";
 
-        foreach ( $data['sizes'] as $size => $size_data ) {
-            $data['sizes'][$size]['file'] = "$attachment_id";
+        $media_helper = new MediaHelper();
+        $image_sizes = $media_helper->get_image_sizes();
+
+        foreach ( $image_sizes as $size => $size_data ) {
+            $data['sizes'][$size]['file'] = "$size/$attachment_id";
         }
 
         return $data;
